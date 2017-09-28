@@ -21,6 +21,11 @@ function addToTable(pair, price, volume) {
         $('#ETHResults').append("<tr><td>" + pair.substring(4) + "</td><td>" + price + "</td><td>" + volume + "</td></tr>");
 }
 
-$("#timeLength, #timeFormat").on('change', function () {
-    hub.server.changeDelay($("#timeLength").text, $("#timeFormat").text);   
+$("#timeLength").on('change', function () {
+    hub.server.changeDelay($("#timeLength").val(), $("#timeFormat").text());   
+});
+
+$('#timeFormatList').on('click', 'li', function () {
+    $("#timeFormat").html(this.id + " <span class=\"caret\"></span>");
+    hub.server.changeDelay($("#timeLength").val(), $("#timeFormat").text());
 });

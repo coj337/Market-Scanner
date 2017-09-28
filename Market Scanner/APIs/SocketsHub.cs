@@ -19,7 +19,7 @@ namespace Market_Scanner{
         }
 
         public void ChangeDelay(int time, string timeFormat){
-            switch (timeFormat.ToString().ToLower()){
+            switch (timeFormat.Trim().ToLower()){
                 case "milliseconds":
                     break;
                 case "seconds":

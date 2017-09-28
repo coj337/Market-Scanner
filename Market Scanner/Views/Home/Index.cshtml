@@ -1,37 +1,94 @@
 ﻿<div class="row">
-    <h2>BTC Pairs</h2>
-    <table class="table table-striped table-bordered table-hover table-responsive">
-        <thead>
-            <tr>
-                <th>Crypto Currency</th>
-                <th>Price (BTC)</th>
-                <th>Volume</th>
-            </tr>
-        </thead>
-        <tbody id="BTCResults"></tbody>
-    </table>
+    
+    <!-- Sidebar -->
+    <div class="col-xs-2">
+        <!-- Polling Frequency -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Polling Frequency</h3>
+            </div>
+            <div class="panel-body">
+                <div class="input-group">
+                    <input id="timeLength" type="text" value="1" class="form-control">
+                    <div class="input-group-btn">
+                        <button id="timeFormat" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Seconds <span class="caret"></span></button>
+                        <ul id="timeFormatList" class="dropdown-menu dropdown-menu-right">
+                            <li id="Milliseconds"><a href="#">Milliseconds</a></li>
+                            <li id="Seconds"><a href="#">Seconds</a></li>
+                            <li id="Minutes"><a href="#">Minutes</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <h2>USDT Pairs</h2>
-    <table class="table table-striped table-bordered table-hover table-responsive">
-        <thead>
-            <tr>
-                <th>Crypto Currency</th>
-                <th>Price (USDT)</th>
-                <th>Volume</th>
-            </tr>
-        </thead>
-        <tbody id="USDTResults"></tbody>
-    </table>
+        <!-- Exchanges -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Exchanges</h3>
+            </div>
+            <div class="panel-body">
+                Basic panel example
+            </div>
+        </div>
 
-    <h2>ETH Pairs</h2>
-    <table class="table table-striped table-bordered table-hover table-responsive">
-        <thead>
-            <tr>
-                <th>Crypto Currency</th>
-                <th>Price (ETH)</th>
-                <th>Volume</th>
-            </tr>
-        </thead>
-        <tbody id="ETHResults"></tbody>
-    </table>
+        <!-- % Price Change -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">% Price Change</h3>
+            </div>
+            <div class="panel-body">
+                Basic panel example
+            </div>
+        </div>
+
+        <!-- % Volume Change -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">% Volume Change</h3>
+            </div>
+            <div class="panel-body">
+                Basic panel example
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="col-xs-10">
+        <h2 style="padding-top:0px;">BTC Pairs</h2>
+        <table class="table table-striped table-bordered table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th>Crypto Currency</th>
+                    <th>Price (BTC)</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody id="BTCResults"></tbody>
+        </table>
+
+        <h2>USDT Pairs</h2>
+        <table class="table table-striped table-bordered table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th>Crypto Currency</th>
+                    <th>Price (USDT)</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody id="USDTResults"></tbody>
+        </table>
+
+        <h2>ETH Pairs</h2>
+        <table class="table table-striped table-bordered table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th>Crypto Currency</th>
+                    <th>Price (ETH)</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody id="ETHResults"></tbody>
+        </table>
+    </div>
 </div>
