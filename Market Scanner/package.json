@@ -1,0 +1,10 @@
+{
+  "name": "myproject",
+  "version": "1.0.0",
+  "devDependencies": {
+    "edge": "^7.10.1",
+    "edgejs": "0.0.0",
+    "node-bittrex-api": "^0.7.6"
+  },
+  "dependencies": {}
+}
