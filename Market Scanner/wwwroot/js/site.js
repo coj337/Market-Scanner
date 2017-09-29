@@ -8,18 +8,11 @@ $.connection.hub.start().done(function () {
 });
 
 function reset() {
-    $('#BTCResults').empty();
-    $('#USDTResults').empty();
-    $('#ETHResults').empty();
+    $('#Results').empty();
 }
 
 function addToTable(pair, price, volume) {
-    if(pair[0] == "B")
-        $('#BTCResults').append("<tr><td>" + pair.substring(4) + "</td><td>" + price + "</td><td>" + volume + "</td></tr>");
-    else if (pair[0] == "U")
-        $('#USDTResults').append("<tr><td>" + pair.substring(5) + "</td><td>" + price + "</td><td>" + volume + "</td></tr>");
-    else if (pair[0] == "E")
-        $('#ETHResults').append("<tr><td>" + pair.substring(4) + "</td><td>" + price + "</td><td>" + volume + "</td></tr>");
+    $('#Results').append("<tr><td>" + pair + "</td><td>" + price + "</td><td>" + volume + "</td></tr>");
 }
 
 $("#timeLength").on('change', function () {
@@ -29,6 +22,10 @@ $("#timeLength").on('change', function () {
 $('#timeFormatList').on('click', 'li', function () {
     $("#timeFormat").html(this.id + " <span class=\"caret\"></span>");
     hub.server.changeDelay($("#timeLength").val(), $("#timeFormat").text());
+});
+
+$('#BTCPairs, #USDTPairs, #ETHPairs').on('change', function () {
+    hub.server.togglePair(this.id.substring(0,3));
 });
 
 function resetLastUpdate() {
