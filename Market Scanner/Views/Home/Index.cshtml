@@ -47,17 +47,20 @@
             </div>
         </div>
 
-        <!-- Coin Filters (Min price, volume) -->
+        <!-- Coin Filters (Min/Max price, volume) -->
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">% Price Change</h3>
+                <h3 class="panel-title">Price/Volume Filters</h3>
             </div>
             <div class="panel-body">
-                Basic panel example
+                <label class="label label-default coinFilter col-xs-5" for="minPrice" >Minimum Price</label><input type="text" id="minPrice" class="form-control col-xs-7"/>
+                <label class="label label-default coinFilter col-xs-5" for="maxPrice">Maximum Price</label><input type="text" id="maxPrice" class="form-control col-xs-7"/>
+                <label class="label label-default coinFilter col-xs-5" for="minVolume">Minimum Volume</label><input type="text" id="minVolume" class="form-control col-xs-7"/>
+                <label class="label label-default coinFilter col-xs-5" for="maxVolume">Maximum Volume</label><input type="text" id="maxVolume" class="form-control col-xs-7"/>
             </div>
         </div>
 
-        <!-- % Price Change -->
+        <!-- % Price Change --> 
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">% Price Change</h3>
@@ -84,7 +87,7 @@
         <table class="table table-striped table-bordered table-hover table-responsive">
             <thead>
                 <tr>
-                    <th>Crypto Currency</th>
+                    <th>Coin Pair</th>
                     <th>Price</th>
                     <th>Volume</th>
                 </tr>

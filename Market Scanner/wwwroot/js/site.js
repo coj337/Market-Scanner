@@ -28,6 +28,21 @@ $('#BTCPairs, #USDTPairs, #ETHPairs').on('change', function () {
     hub.server.togglePair(this.id.substring(0,3));
 });
 
+$("#maxPrice, #minPrice, #minVolume, #maxVolume").on('change', function () {
+    if (this.id == "maxPrice") {
+        hub.server.changeMaxPrice($("#maxPrice").val());
+    }
+    else if (this.id == "minPrice") {
+        hub.server.changeMinPrice($("#minPrice").val());
+    }
+    else if (this.id == "maxVolume") {
+        hub.server.changeMaxVolume($("#maxVolume").val());
+    }
+    else if (this.id == "minVolume") {
+        hub.server.changeMinVolume($("#minVolume").val());
+    }
+});
+
 function resetLastUpdate() {
     $("#lastUpdated").text("0");
 }

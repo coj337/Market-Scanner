@@ -11,13 +11,26 @@ using System.Threading;
 namespace Market_Scanner{
     public class SocketsHub : Hub{
         private static Dictionary<string, CancellationTokenSource> token = new Dictionary<string, CancellationTokenSource>();
+
+        //Scanner Config
         private static Dictionary<string, int> time = new Dictionary<string, int>();
+        
+        //Filters
         private static Dictionary<string, List<string>> selectedPairs = new Dictionary<string, List<string>>();
+        private static Dictionary<string, double> minPrice = new Dictionary<string, double>();
+        private static Dictionary<string, double> maxPrice = new Dictionary<string, double>();
+        private static Dictionary<string, double> minVolume = new Dictionary<string, double>();
+        private static Dictionary<string, double> maxVolume = new Dictionary<string, double>();
+
 
         public override Task OnConnected(){
             token[Context.ConnectionId] = new CancellationTokenSource();
             time[Context.ConnectionId] = 1000;
             selectedPairs[Context.ConnectionId] = new List<string>(new string[] { "BTC", "USD", "ETH" });
+            minPrice[Context.ConnectionId] = 0;
+            maxPrice[Context.ConnectionId] = Double.MaxValue;
+            minVolume[Context.ConnectionId] = 0;
+            maxVolume[Context.ConnectionId] = Double.MaxValue;
 
             return base.OnConnected();
         }
@@ -26,6 +39,10 @@ namespace Market_Scanner{
             token.Remove(Context.ConnectionId);
             time.Remove(Context.ConnectionId);
             selectedPairs.Remove(Context.ConnectionId);
+            minPrice.Remove(Context.ConnectionId);
+            maxPrice.Remove(Context.ConnectionId);
+            minVolume.Remove(Context.ConnectionId);
+            maxVolume.Remove(Context.ConnectionId);
 
             return base.OnDisconnected(stopCalled);
         }
@@ -47,6 +64,22 @@ namespace Market_Scanner{
             }
             time[Context.ConnectionId] = newTime;
             token[Context.ConnectionId].Cancel();
+        }
+
+        public void ChangeMaxPrice(double price){
+            maxPrice[Context.ConnectionId] = price;
+        }
+
+        public void ChangeMinPrice(double price){
+            minPrice[Context.ConnectionId] = price;
+        }
+
+        public void ChangeMaxVolume(double volume){
+            maxVolume[Context.ConnectionId] = volume;
+        }
+
+        public void ChangeMinVolume(double volume){
+            minVolume[Context.ConnectionId] = volume;
         }
 
         public void TogglePair(string pair){
@@ -79,7 +112,13 @@ namespace Market_Scanner{
                 }
 
                 Clients.Client(Context.ConnectionId).clearTables();
-                foreach (Coin coin in coins.Where(x => selectedPairs[Context.ConnectionId].Contains(x.marketName.Substring(0, 3)))){
+                foreach (Coin coin in coins.Where(coin =>
+                                                   selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
+                                                && Convert.ToDouble(coin.last) >= minPrice[Context.ConnectionId] //Check min price
+                                                && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
+                                                && Convert.ToDouble(coin.volume) >= minVolume[Context.ConnectionId] //Check min volume
+                                                && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
+                                                )){
                     UpdateTable(coin);
                 }
                 Clients.Client(Context.ConnectionId).lastUpdate();

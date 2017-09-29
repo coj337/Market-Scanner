@@ -18,3 +18,16 @@
 footer{
     padding-left: 50px;
 }
+
+.coinFilter {
+    padding-top: 11px;
+    padding-bottom: 11px;
+    font-size: 80%;
+    margin-bottom: 5px;
+}
+
+#minPrice, #maxPrice, #minVolume, #maxVolume {
+    width: 50%; 
+    margin-left: 5px;
+    margin-bottom: 5px;
+}
