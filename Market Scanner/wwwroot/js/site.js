@@ -1,6 +1,7 @@
 ﻿var hub = $.connection.socketsHub;
 hub.client.updateTable = addToTable;
 hub.client.clearTables = reset;
+hub.client.lastUpdate = resetLastUpdate;
 
 $.connection.hub.start().done(function () {
     hub.server.startListeners();    
@@ -29,3 +30,11 @@ $('#timeFormatList').on('click', 'li', function () {
     $("#timeFormat").html(this.id + " <span class=\"caret\"></span>");
     hub.server.changeDelay($("#timeLength").val(), $("#timeFormat").text());
 });
+
+function resetLastUpdate() {
+    $("#lastUpdated").text("0");
+}
+
+setInterval(function () { //Increment last updated every second
+    $("#lastUpdated").text(parseInt($("#lastUpdated").text()) + 1);
+}, 1000);

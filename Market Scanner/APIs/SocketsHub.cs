@@ -10,26 +10,26 @@ using System.Threading;
 
 namespace Market_Scanner{
     public class SocketsHub : Hub{
-        private CancellationTokenSource token = new CancellationTokenSource();
-        private int time;
+        private static CancellationTokenSource token = new CancellationTokenSource();
+        private static int time = 1000;
 
         public void StartListeners(){
-            time = 1000;
             StartListener();
         }
 
-        public void ChangeDelay(int time, string timeFormat){
+        public void ChangeDelay(int newTime, string timeFormat){
             switch (timeFormat.Trim().ToLower()){
                 case "milliseconds":
                     break;
                 case "seconds":
-                    time *= 1000;
+                    newTime *= 1000;
                     break;
                 case "minutes":
-                    time *= 60000;
+                    newTime *= 60000;
                     break;
             }
-            this.time = time;
+            time = newTime;
+            token.Cancel();
         }
 
         public void UpdateTable(Coin coin){
@@ -56,12 +56,13 @@ namespace Market_Scanner{
                 foreach (Coin coin in coins.Where(x => Convert.ToDouble(x.last) > 0.1)){
                     UpdateTable(coin);
                 }
+                Clients.All.lastUpdate();
 
                 try{
                     await Task.Delay(time, token.Token); //await {time} {timeFormat} before executing loop again
                 }
                 catch (TaskCanceledException){
-                    break;
+                    token = new CancellationTokenSource(); //Reset cancellation token
                 }
             }
         }
