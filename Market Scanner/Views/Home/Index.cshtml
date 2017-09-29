@@ -23,9 +23,34 @@
         </div>
 
         <!-- Exchanges -->
+        <!-- TODO: Implement more exchanges and make this do things -->
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">Exchanges</h3>
+            </div>
+            <div class="panel-body">
+                <input id="bittrexCheck" class="checkbox-inline" type="checkbox" checked> <label class="label label-default" for="bittrexCheck">Bittrex</label><br />
+                <input id="liquiCheck" class="checkbox-inline" type="checkbox" disabled> <label class="label label-default" for="liquiCheck"><strike>Liqui</strike></label><br />
+                <input id="hitBTCCheck" class="checkbox-inline" type="checkbox" disabled> <label class="label label-default" for="hitBTCCheck"><strike>HitBTC</strike></label><br />
+            </div>
+        </div>
+
+        <!-- Base Currencies -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Base Currencies</h3>
+            </div>
+            <div class="panel-body">
+                <input id="BTCPairs" class="checkbox-inline" type="checkbox" checked> <label class="label label-default" for="BTCPairs">BTC</label><br />
+                <input id="USDTPairs" class="checkbox-inline" type="checkbox" checked> <label class="label label-default" for="USDTPairs">USDT</label><br />
+                <input id="ETHPairs" class="checkbox-inline" type="checkbox" checked> <label class="label label-default" for="ETHPairs">ETH</label><br />
+            </div>
+        </div>
+
+        <!-- Coin Filters (Min price, volume) -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">% Price Change</h3>
             </div>
             <div class="panel-body">
                 Basic panel example
@@ -55,40 +80,16 @@
 
     <!-- Tables -->
     <div class="col-xs-10">
-        <h2 style="padding-top:0px;">BTC Pairs</h2>
+        <h2 style="padding-top:0px;">Pairs</h2>
         <table class="table table-striped table-bordered table-hover table-responsive">
             <thead>
                 <tr>
                     <th>Crypto Currency</th>
-                    <th>Price (BTC)</th>
+                    <th>Price</th>
                     <th>Volume</th>
                 </tr>
             </thead>
-            <tbody id="BTCResults"></tbody>
-        </table>
-
-        <h2>USDT Pairs</h2>
-        <table class="table table-striped table-bordered table-hover table-responsive">
-            <thead>
-                <tr>
-                    <th>Crypto Currency</th>
-                    <th>Price (USDT)</th>
-                    <th>Volume</th>
-                </tr>
-            </thead>
-            <tbody id="USDTResults"></tbody>
-        </table>
-
-        <h2>ETH Pairs</h2>
-        <table class="table table-striped table-bordered table-hover table-responsive">
-            <thead>
-                <tr>
-                    <th>Crypto Currency</th>
-                    <th>Price (ETH)</th>
-                    <th>Volume</th>
-                </tr>
-            </thead>
-            <tbody id="ETHResults"></tbody>
+            <tbody id="Results"></tbody>
         </table>
     </div>
 </div>
