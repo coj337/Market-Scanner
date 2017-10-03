@@ -50,40 +50,73 @@
         <!-- Coin Filters (Min/Max price, volume) -->
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Price/Volume Filters</h3>
+                <h3 class="panel-title">Filters</h3>
             </div>
             <div class="panel-body">
-                <label class="label label-default coinFilter col-xs-5" for="minPrice" >Minimum Price</label><input type="text" id="minPrice" class="form-control col-xs-7"/>
-                <label class="label label-default coinFilter col-xs-5" for="maxPrice">Maximum Price</label><input type="text" id="maxPrice" class="form-control col-xs-7"/>
-                <label class="label label-default coinFilter col-xs-5" for="minVolume">Minimum Volume</label><input type="text" id="minVolume" class="form-control col-xs-7"/>
-                <label class="label label-default coinFilter col-xs-5" for="maxVolume">Maximum Volume</label><input type="text" id="maxVolume" class="form-control col-xs-7"/>
+                Price
+                <div class="input-group">
+                    <input type="text" id="minPrice" placeholder="Min Price" class="form-control" />
+                    <input type="text" id="maxPrice" placeholder="Max Price" class="form-control" style="margin-left: 3%;"/>
+                </div>
+
+                Volume
+                <div class="input-group">
+                    <input type="text" id="minVolume" placeholder="Min Volume" class="form-control" />
+                    <input type="text" id="maxVolume" placeholder="Max Volume" class="form-control" style="margin-left: 3%;"/>
+                </div>
             </div>
         </div>
 
-        <!-- % Price Change --> 
+        <!-- % Growth --> 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">% Price Change</h3>
+                <h3 class="panel-title">Growth</h3>
             </div>
             <div class="panel-body">
-                Basic panel example
-            </div>
-        </div>
+                Price Change<br />
+                <div class="input-group spinner1" >
+                    <input type="text" id="priceChange" placeholder="Min %" class="form-control" />
+                    <div class="input-group-btn-vertical">
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+                    </div>
 
-        <!-- % Volume Change -->
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">% Volume Change</h3>
-            </div>
-            <div class="panel-body">
-                Basic panel example
+                    <input id="pTimeLength" type="text" value="5" class="form-control" style="margin-left: 10%;">
+                    <div class="input-group-btn">
+                        <button id="pTimeFormat" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Minutes <span class="caret"></span></button>
+                        <ul id="pTimeFormatList" class="dropdown-menu dropdown-menu-right">
+                            <li id="Seconds"><a href="#">Seconds</a></li>
+                            <li id="Minutes"><a href="#">Minutes</a></li>
+                            <li id="Hours"><a href="#">Hours</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <br />
+                Volume Change<br />
+                <div class="input-group spinner2">
+                    <input type="text" id="volumeChange" placeholder="Min %" class="form-control" />
+                    <div class="input-group-btn-vertical">
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+                    </div>
+
+                    <input id="vTimeLength" type="text" value="5" class="form-control" style="margin-left: 10%;">
+                    <div class="input-group-btn">
+                        <button id="vTimeFormat" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Minutes <span class="caret"></span></button>
+                        <ul id="vTimeFormatList" class="dropdown-menu dropdown-menu-right">
+                            <li id="Seconds"><a href="#">Seconds</a></li>
+                            <li id="Minutes"><a href="#">Minutes</a></li>
+                            <li id="Hours"><a href="#">Hours</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Tables -->
-    <div class="col-xs-10">
-        <h2 style="padding-top:0px;">Pairs</h2>
+    <div class="col-xs-9">
         <table class="table table-striped table-bordered table-hover table-responsive">
             <thead>
                 <tr>

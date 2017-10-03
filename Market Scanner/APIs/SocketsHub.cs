@@ -15,13 +15,16 @@ namespace Market_Scanner{
         //Scanner Config
         private static Dictionary<string, int> time = new Dictionary<string, int>();
         
-        //Filters
+        // Attribute Filters
         private static Dictionary<string, List<string>> selectedPairs = new Dictionary<string, List<string>>();
         private static Dictionary<string, double> minPrice = new Dictionary<string, double>();
         private static Dictionary<string, double> maxPrice = new Dictionary<string, double>();
         private static Dictionary<string, double> minVolume = new Dictionary<string, double>();
         private static Dictionary<string, double> maxVolume = new Dictionary<string, double>();
-
+        
+        // Movement Filters
+        private static Dictionary<string, double> priceChange = new Dictionary<string, double>();
+        private static Dictionary<string, int> priceChangeTime = new Dictionary<string, int>();
 
         public override Task OnConnected(){
             token[Context.ConnectionId] = new CancellationTokenSource();
@@ -31,8 +34,14 @@ namespace Market_Scanner{
             maxPrice[Context.ConnectionId] = Double.MaxValue;
             minVolume[Context.ConnectionId] = 0;
             maxVolume[Context.ConnectionId] = Double.MaxValue;
+            priceChange[Context.ConnectionId] = 0;
+            priceChangeTime[Context.ConnectionId] = 0;
 
             return base.OnConnected();
+        }
+
+        private async void Intialize(){
+            await Helper.Initialize();
         }
 
         public override Task OnDisconnected(bool stopCalled){
@@ -43,6 +52,8 @@ namespace Market_Scanner{
             maxPrice.Remove(Context.ConnectionId);
             minVolume.Remove(Context.ConnectionId);
             maxVolume.Remove(Context.ConnectionId);
+            priceChange.Remove(Context.ConnectionId);
+            priceChangeTime.Remove(Context.ConnectionId);
 
             return base.OnDisconnected(stopCalled);
         }
@@ -82,6 +93,22 @@ namespace Market_Scanner{
             minVolume[Context.ConnectionId] = volume;
         }
 
+        public void SetPriceChange(double changePercent, int newTime, string timeFormat){
+            switch (timeFormat.Trim().ToLower()){
+                case "seconds":
+                    newTime *= 1000;
+                    break;
+                case "minutes":
+                    newTime *= 60000;
+                    break;
+                case "hours":
+                    newTime *= 3600000;
+                    break;
+            }
+            priceChangeTime[Context.ConnectionId] = newTime;
+            priceChange[Context.ConnectionId] = changePercent;
+        }
+
         public void TogglePair(string pair){
             if (selectedPairs[Context.ConnectionId].Contains(pair)) {
                 selectedPairs[Context.ConnectionId].Remove(pair);
@@ -112,30 +139,28 @@ namespace Market_Scanner{
                 }
 
                 Clients.Client(Context.ConnectionId).clearTables();
-                foreach (Coin coin in coins.Where(coin =>
-                                                   selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
-                                                && Convert.ToDouble(coin.last) >= minPrice[Context.ConnectionId] //Check min price
-                                                && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
-                                                && Convert.ToDouble(coin.volume) >= minVolume[Context.ConnectionId] //Check min volume
-                                                && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
-                                                )){
-                    UpdateTable(coin);
-                }
-                Clients.Client(Context.ConnectionId).lastUpdate();
-
                 try{
-                    await Task.Delay(time[Context.ConnectionId], token[Context.ConnectionId].Token); //await {time} {timeFormat} before executing loop again
-                }
-                catch (TaskCanceledException){
-                    token[Context.ConnectionId] = new CancellationTokenSource(); //Reset cancellation token
-                }
-            }
-        }
+                    foreach (Coin coin in coins.Where(coin =>
+                                                        selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
+                                                     && Convert.ToDouble(coin.last) >= minPrice[Context.ConnectionId] //Check min price
+                                                     && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
+                                                     && Convert.ToDouble(coin.volume) >= minVolume[Context.ConnectionId] //Check min volume
+                                                     && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
+                                                     && Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId])
+                                                    )){
+                        UpdateTable(coin);
+                    }
+                    Clients.Client(Context.ConnectionId).lastUpdate();
 
-        public class JsonResponse{
-            public bool success;
-            public string message;
-            public List<Coin> result;
+                    try{
+                        await Task.Delay(time[Context.ConnectionId], token[Context.ConnectionId].Token); //await {time} {timeFormat} before executing loop again
+                    }
+                    catch (TaskCanceledException){
+                        token[Context.ConnectionId] = new CancellationTokenSource(); //Reset cancellation token
+                    }
+                }
+                catch (KeyNotFoundException) { }
+            }
         }
     }
 }

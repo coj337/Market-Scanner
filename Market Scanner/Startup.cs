@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Market_Scanner.APIs;
 
 namespace Market_Scanner
 {
@@ -64,6 +65,15 @@ namespace Market_Scanner
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            Initialize(); //Initializing data structures
+            Task.Run(() =>
+                Helper.StartCollectorAsync()
+            );
+        }
+
+        private async void Initialize(){
+            await Helper.Initialize();
         }
     }
 }

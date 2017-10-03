@@ -24,6 +24,11 @@ $('#timeFormatList').on('click', 'li', function () {
     hub.server.changeDelay($("#timeLength").val(), $("#timeFormat").text());
 });
 
+$('#pTimeFormatList').on('click', 'li', function () {
+    $("#pTimeFormat").html(this.id + " <span class=\"caret\"></span>");
+    hub.server.setPriceChange($("#maxTime").val(), $("#pTimeFormat").text());
+});
+
 $('#BTCPairs, #USDTPairs, #ETHPairs').on('change', function () {
     hub.server.togglePair(this.id.substring(0,3));
 });
@@ -50,3 +55,31 @@ function resetLastUpdate() {
 setInterval(function () { //Increment last updated every second
     $("#lastUpdated").text(parseInt($("#lastUpdated").text()) + 1);
 }, 1000);
+
+(function ($) {
+    $('.spinner1 .btn:first-of-type').on('click', function () {
+        if ($('#priceChange').val() == "") {
+            $('#priceChange').val(0);
+        }
+        $('#priceChange').val(parseInt($('#priceChange').val(), 10) + 1);
+    });
+    $('.spinner1 .btn:last-of-type').on('click', function () {
+        if ($('#priceChange').val() == "") {
+            $('#priceChange').val(0);
+        }
+        $('#priceChange').val(parseInt($('#priceChange').val(), 10) - 1);
+    });
+
+    $('.spinner2 .btn:first-of-type').on('click', function () {
+        if ($('#volumeChange').val() == "") {
+            $('#volumeChange').val(0);
+        }
+        $('#volumeChange').val(parseInt($('#volumeChange').val(), 10) + 1);
+    });
+    $('.spinner2 .btn:last-of-type').on('click', function () {
+        if ($('#volumeChange').val() == "") {
+            $('#volumeChange').val(0);
+        }
+        $('#volumeChange').val(parseInt($('#volumeChange').val(), 10) - 1);
+    });
+})(jQuery);
