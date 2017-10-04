@@ -26,9 +26,24 @@ $('#timeFormatList').on('click', 'li', function () {
 
 $('#pTimeFormatList').on('click', 'li', function () {
     $("#pTimeFormat").html(this.id + " <span class=\"caret\"></span>");
+});
+
+/* Price/Volume growth filters */
+$('.spinner1').on("change", function () {
+    hub.server.setPriceChange($("#maxTime").val(), $("#pTimeFormat").text());
+});
+$('#pTimeFormatList').on("click", "li", function () {
     hub.server.setPriceChange($("#maxTime").val(), $("#pTimeFormat").text());
 });
 
+$('.spinner1').on("change", function () {
+    hub.server.setVolumeChange($("#maxVolume").val(), $("vTimeFormat").text());
+});
+$('#vTimeFormatList').on("click", "li", function () {
+    hub.server.setVolumeChange($("#maxVolume").val(), $("#vTimeFormat").text());
+});
+
+/* Base currency filters */
 $('#BTCPairs, #USDTPairs, #ETHPairs').on('change', function () {
     hub.server.togglePair(this.id.substring(0,3));
 });

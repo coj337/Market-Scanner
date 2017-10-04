@@ -66,14 +66,7 @@ namespace Market_Scanner
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            Initialize(); //Initializing data structures
-            Task.Run(() =>
-                Helper.StartCollectorAsync()
-            );
-        }
-
-        private async void Initialize(){
-            await Helper.Initialize();
+            Helper.Start(); //Initializing data structures
         }
     }
 }

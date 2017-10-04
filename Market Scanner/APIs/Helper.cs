@@ -4,11 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Http;
-using Market_Scanner.APIs;
+using System.Globalization;
 
 namespace Market_Scanner.APIs{
     public class Helper {
         public static Dictionary<string, Dictionary<string, Coin>> coinsHistory = new Dictionary<string, Dictionary<string, Coin>>(); //coinsHistory[marketName][timeStamp] 
+
+        public static async void Start(){
+            await Initialize();
+            await StartCollectorAsync();
+        }
 
         public static async Task Initialize(){
             string url = "https://bittrex.com/api/v1.1/public/getmarketsummaries";
@@ -20,8 +25,9 @@ namespace Market_Scanner.APIs{
                         if (data != null){
                             List<Coin> coins = JsonConvert.DeserializeObject<JsonResponse>(data).result;
                             foreach (Coin coin in coins){
-                                Dictionary<string, Coin> tDict = new Dictionary<string, Coin>();
-                                tDict.Add(coin.timeStamp, coin);
+                                Dictionary<string, Coin> tDict = new Dictionary<string, Coin>{
+                                    { coin.timeStamp, coin }
+                                };
                                 coinsHistory.Add(coin.marketName, tDict);
                             }
                         }
@@ -31,10 +37,17 @@ namespace Market_Scanner.APIs{
         }
 
         public static bool CheckPriceChange(Coin coin, double price, int time) {
-            double lastPrice = Convert.ToDouble(coinsHistory[coin.marketName].Last().Value.last);
+            Dictionary<string, Coin> currentHistory = new Dictionary<string, Coin>(coinsHistory[coin.marketName]);
+            double lastPrice = Convert.ToDouble(currentHistory.Last().Value.last);
 
-            foreach (KeyValuePair<string, Coin> tCoin in coinsHistory[coin.marketName].Where(tCoin => tCoin.Value.timeStamp.CompareTo(coin.timeStamp) >= 0)){
-                if (Convert.ToDouble(tCoin.Value.last) >= lastPrice * (price / 100 + 1)) //price / 100 + 1 == 1.price
+            //Minus the time difference from the date to get the requested date to check
+            DateTime oDate = Convert.ToDateTime(coin.timeStamp);
+            oDate.AddMilliseconds(Convert.ToDouble(time) * -1); //Convert this to /remove/ milliseconds
+            string ctime = oDate.ToString(DateTimeFormatInfo.CurrentInfo.SortableDateTimePattern);
+
+            foreach (Coin tCoin in currentHistory.Values.Where(tCoin => tCoin.timeStamp.CompareTo(ctime) <= 0)){
+                var a = lastPrice * (price / 100 + 1);
+                if (Convert.ToDouble(tCoin.last) <= lastPrice * (price / 100 + 1)) //price / 100 + 1 == 1.price
                     return true;
             }
             return false;
@@ -52,15 +65,14 @@ namespace Market_Scanner.APIs{
                         using (HttpContent content = res.Content) {
                             string data = await content.ReadAsStringAsync();
                             if (data != null){
-                                foreach (Coin coin in JsonConvert.DeserializeObject<JsonResponse>(data).result) {
-                                    coinsHistory[coin.marketName].Add(coin.timeStamp, coin);
+                                foreach (Tick tick in JsonConvert.DeserializeObject<JsonResponse2>(data).result) {
+                                    coinsHistory[coinNames.Key].Add(tick.T, tick.ToCoin(coinNames.Key));
                                 }
                             }
                         }
                     }
                 }
             }
-
 
             //Loop 5eva refreshing list
             url = "https://bittrex.com/api/v1.1/public/getmarketsummaries";
@@ -69,8 +81,14 @@ namespace Market_Scanner.APIs{
                     using (HttpResponseMessage res = await client.GetAsync(url)){
                         using (HttpContent content = res.Content){
                             string data = await content.ReadAsStringAsync();
-                            foreach (var coin in JsonConvert.DeserializeObject<JsonResponse>(data).result){
-                                coinsHistory[coin.marketName].Add(coin.timeStamp, coin);
+                            foreach (Coin coin in JsonConvert.DeserializeObject<JsonResponse>(data).result){
+                                try{
+                                    if (!coinsHistory.ContainsKey(coin.timeStamp)) //Don't overwrite
+                                        coinsHistory[coin.marketName].Add(coin.timeStamp, coin);
+                                }
+                                catch (ArgumentException) {
+
+                                }
                             }
                         }
                     }

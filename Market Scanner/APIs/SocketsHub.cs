@@ -25,6 +25,8 @@ namespace Market_Scanner{
         // Movement Filters
         private static Dictionary<string, double> priceChange = new Dictionary<string, double>();
         private static Dictionary<string, int> priceChangeTime = new Dictionary<string, int>();
+        private static Dictionary<string, double> volumeChange = new Dictionary<string, double>();
+        private static Dictionary<string, int> volumeChangeTime = new Dictionary<string, int>();
 
         public override Task OnConnected(){
             token[Context.ConnectionId] = new CancellationTokenSource();
@@ -36,12 +38,10 @@ namespace Market_Scanner{
             maxVolume[Context.ConnectionId] = Double.MaxValue;
             priceChange[Context.ConnectionId] = 0;
             priceChangeTime[Context.ConnectionId] = 0;
+            volumeChange[Context.ConnectionId] = 0;
+            volumeChangeTime[Context.ConnectionId] = 0;
 
             return base.OnConnected();
-        }
-
-        private async void Intialize(){
-            await Helper.Initialize();
         }
 
         public override Task OnDisconnected(bool stopCalled){
@@ -54,6 +54,8 @@ namespace Market_Scanner{
             maxVolume.Remove(Context.ConnectionId);
             priceChange.Remove(Context.ConnectionId);
             priceChangeTime.Remove(Context.ConnectionId);
+            volumeChange.Remove(Context.ConnectionId);
+            volumeChangeTime.Remove(Context.ConnectionId);
 
             return base.OnDisconnected(stopCalled);
         }
@@ -109,6 +111,22 @@ namespace Market_Scanner{
             priceChange[Context.ConnectionId] = changePercent;
         }
 
+        public void SetVolumeChange(double changePercent, int newTime, string timeFormat){
+            switch (timeFormat.Trim().ToLower()){
+                case "seconds":
+                    newTime *= 1000;
+                    break;
+                case "minutes":
+                    newTime *= 60000;
+                    break;
+                case "hours":
+                    newTime *= 3600000;
+                    break;
+            }
+            volumeChangeTime[Context.ConnectionId] = newTime;
+            volumeChange[Context.ConnectionId] = changePercent;
+        }
+
         public void TogglePair(string pair){
             if (selectedPairs[Context.ConnectionId].Contains(pair)) {
                 selectedPairs[Context.ConnectionId].Remove(pair);
@@ -118,15 +136,17 @@ namespace Market_Scanner{
             }
         }
 
-        public void UpdateTable(Coin coin){
-            Clients.Client(Context.ConnectionId).updateTable(coin.marketName, coin.last, coin.volume);
+        public void UpdateTable(List<Coin> coins){
+            foreach(Coin coin in coins)
+                Clients.Client(Context.ConnectionId).updateTable(coin.marketName, coin.last, coin.volume);
         }
 
         private async void StartListener(){
             while (true){
                 List<Coin> coins = new List<Coin>();
-                string url = "https://bittrex.com/api/v1.1/public/getmarketsummaries";
+                List<Coin> validCoins = new List<Coin>();
 
+                string url = "https://bittrex.com/api/v1.1/public/getmarketsummaries";
                 using (HttpClient client = new HttpClient()){
                     using (HttpResponseMessage res = await client.GetAsync(url)){
                         using (HttpContent content = res.Content){
@@ -138,7 +158,6 @@ namespace Market_Scanner{
                     }
                 }
 
-                Clients.Client(Context.ConnectionId).clearTables();
                 try{
                     foreach (Coin coin in coins.Where(coin =>
                                                         selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
@@ -148,8 +167,10 @@ namespace Market_Scanner{
                                                      && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
                                                      && Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId])
                                                     )){
-                        UpdateTable(coin);
+                        validCoins.Add(coin);
                     }
+                    Clients.Client(Context.ConnectionId).clearTables();
+                    UpdateTable(validCoins);
                     Clients.Client(Context.ConnectionId).lastUpdate();
 
                     try{
