@@ -1,5 +1,4 @@
 ﻿var hub = $.connection.socketsHub;
-$.connection.hub.logging = true;
 
 hub.client.clearTables = reset;
 hub.client.updateTable = addToTable;
