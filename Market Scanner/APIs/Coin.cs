@@ -16,7 +16,7 @@ namespace Market_Scanner.APIs{
         public List<Tick> result;
     }
 
-    public class Coin {
+    public class Coin{
         public string marketName;
         public string high;
         public string low;

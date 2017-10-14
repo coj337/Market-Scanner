@@ -2,26 +2,6 @@
     
     <!-- Sidebar -->
     <div class="col-xs-2">
-        <!-- Polling Frequency -->
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Polling Frequency</h3>
-            </div>
-            <div class="panel-body">
-                <div class="input-group">
-                    <input id="timeLength" type="text" value="1" class="form-control">
-                    <div class="input-group-btn">
-                        <button id="timeFormat" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Seconds <span class="caret"></span></button>
-                        <ul id="timeFormatList" class="dropdown-menu dropdown-menu-right">
-                            <li id="Milliseconds"><a href="#">Milliseconds</a></li>
-                            <li id="Seconds"><a href="#">Seconds</a></li>
-                            <li id="Minutes"><a href="#">Minutes</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Exchanges -->
         <!-- TODO: Implement more exchanges and make this do things -->
         <div class="panel panel-default">
@@ -123,6 +103,8 @@
                     <th>Coin Pair</th>
                     <th>Price</th>
                     <th>Volume</th>
+                    <th>Price Change %</th>
+                    <th>Volume Change %</th>
                 </tr>
             </thead>
             <tbody id="Results"></tbody>

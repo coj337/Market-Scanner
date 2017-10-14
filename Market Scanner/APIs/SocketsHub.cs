@@ -12,9 +12,11 @@ namespace Market_Scanner{
     public class SocketsHub : Hub{
         private static Dictionary<string, CancellationTokenSource> token = new Dictionary<string, CancellationTokenSource>();
 
-        //Scanner Config
-        private static Dictionary<string, int> time = new Dictionary<string, int>();
-        
+        // Scanner Config
+        private static Dictionary<string, List<Coin>> validCoins = new Dictionary<string, List<Coin>>(); //List of coins that meet the users conditions
+        private static Dictionary<string, List<double>> priceChanges = new Dictionary<string, List<double>>();
+        private static Dictionary<string, List<double>> volumeChanges = new Dictionary<string, List<double>>();
+
         // Attribute Filters
         private static Dictionary<string, List<string>> selectedPairs = new Dictionary<string, List<string>>();
         private static Dictionary<string, double> minPrice = new Dictionary<string, double>();
@@ -30,7 +32,6 @@ namespace Market_Scanner{
 
         public override Task OnConnected(){
             token[Context.ConnectionId] = new CancellationTokenSource();
-            time[Context.ConnectionId] = 1000;
             selectedPairs[Context.ConnectionId] = new List<string>(new string[] { "BTC", "USD", "ETH" });
             minPrice[Context.ConnectionId] = 0;
             maxPrice[Context.ConnectionId] = Double.MaxValue;
@@ -40,13 +41,15 @@ namespace Market_Scanner{
             priceChangeTime[Context.ConnectionId] = 0;
             volumeChange[Context.ConnectionId] = 0;
             volumeChangeTime[Context.ConnectionId] = 0;
+            validCoins[Context.ConnectionId] = new List<Coin>();
+            priceChanges[Context.ConnectionId] = new List<double>();
+            volumeChanges[Context.ConnectionId] = new List<double>();
 
             return base.OnConnected();
         }
 
         public override Task OnDisconnected(bool stopCalled){
             token.Remove(Context.ConnectionId);
-            time.Remove(Context.ConnectionId);
             selectedPairs.Remove(Context.ConnectionId);
             minPrice.Remove(Context.ConnectionId);
             maxPrice.Remove(Context.ConnectionId);
@@ -56,27 +59,15 @@ namespace Market_Scanner{
             priceChangeTime.Remove(Context.ConnectionId);
             volumeChange.Remove(Context.ConnectionId);
             volumeChangeTime.Remove(Context.ConnectionId);
+            validCoins.Remove(Context.ConnectionId);
+            priceChanges.Remove(Context.ConnectionId);
+            volumeChanges.Remove(Context.ConnectionId);
 
             return base.OnDisconnected(stopCalled);
         }
 
         public void StartListeners(){
             StartListener();
-        }
-
-        public void ChangeDelay(int newTime, string timeFormat){
-            switch (timeFormat.Trim().ToLower()){
-                case "milliseconds":
-                    break;
-                case "seconds":
-                    newTime *= 1000;
-                    break;
-                case "minutes":
-                    newTime *= 60000;
-                    break;
-            }
-            time[Context.ConnectionId] = newTime;
-            token[Context.ConnectionId].Cancel();
         }
 
         public void ChangeMaxPrice(double price){
@@ -136,28 +127,23 @@ namespace Market_Scanner{
             }
         }
 
-        public void UpdateTable(List<Coin> coins){
-            foreach(Coin coin in coins)
-                Clients.Client(Context.ConnectionId).updateTable(coin.marketName, coin.last, coin.volume);
+        public void UpdateTable(List<Coin> coins, List<double> priceChangePercent, List<double> volumeChangePercent){
+            for (int i = 0; i < coins.Count(); i++)
+                Clients.Client(Context.ConnectionId).updateTable(coins[i].marketName, coins[i].last, coins[i].volume, priceChangePercent[i], volumeChangePercent[i]);
         }
 
-        private async void StartListener(){
+        private void StartListener(){
             while (true){
-                List<Coin> coins = new List<Coin>();
-                List<Coin> validCoins = new List<Coin>();
+                //Add the newest instance of each coin into a list
+                List<Coin> coins = Helper.coinsHistory.Values.Select(x => x.Values.Last()).ToList();
+                coins = coins.OrderBy(coin => coin.marketName).ToList();
 
-                string url = "https://bittrex.com/api/v1.1/public/getmarketsummaries";
-                using (HttpClient client = new HttpClient()){
-                    using (HttpResponseMessage res = await client.GetAsync(url)){
-                        using (HttpContent content = res.Content){
-                            string data = await content.ReadAsStringAsync();
-                            if (data != null){
-                                coins = JsonConvert.DeserializeObject<JsonResponse>(data).result;
-                            }
-                        }
-                    }
-                }
+                //Empty the lists to stop infinite stacking
+                validCoins[Context.ConnectionId].Clear(); 
+                priceChanges[Context.ConnectionId].Clear();
+                volumeChanges[Context.ConnectionId].Clear();
 
+                //Find valid coins and update the table
                 try{
                     foreach (Coin coin in coins.Where(coin =>
                                                         selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
@@ -165,22 +151,16 @@ namespace Market_Scanner{
                                                      && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
                                                      && Convert.ToDouble(coin.volume) >= minVolume[Context.ConnectionId] //Check min volume
                                                      && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
-                                                     && Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId])
+                                                     && Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId]) //Check price change over a period of time
                                                     )){
-                        validCoins.Add(coin);
+                        validCoins[Context.ConnectionId].Add(coin);
+                        priceChanges[Context.ConnectionId].Add(0);
+                        volumeChanges[Context.ConnectionId].Add(0);
                     }
                     Clients.Client(Context.ConnectionId).clearTables();
-                    UpdateTable(validCoins);
+                    UpdateTable(validCoins[Context.ConnectionId], priceChanges[Context.ConnectionId], volumeChanges[Context.ConnectionId]);
                     Clients.Client(Context.ConnectionId).lastUpdate();
-
-                    try{
-                        await Task.Delay(time[Context.ConnectionId], token[Context.ConnectionId].Token); //await {time} {timeFormat} before executing loop again
-                    }
-                    catch (TaskCanceledException){
-                        token[Context.ConnectionId] = new CancellationTokenSource(); //Reset cancellation token
-                    }
-                }
-                catch (KeyNotFoundException) { }
+                }catch (KeyNotFoundException) { }
             }
         }
     }

@@ -11,18 +11,9 @@ function reset() {
     $('#Results').empty();
 }
 
-function addToTable(pair, price, volume) {
-    $('#Results').append("<tr><td>" + pair + "</td><td>" + price + "</td><td>" + volume + "</td></tr>");
+function addToTable(pair, price, volume, priceChangePercent, volumeChangePercent) {
+    $('#Results').append("<tr><td>" + pair + "</td><td>" + price + "</td><td>" + volume + "</td><td>" + priceChangePercent + "</td><td>" + volumeChangePercent + "</td></tr>");
 }
-
-$("#timeLength").on('change', function () {
-    hub.server.changeDelay($("#timeLength").val(), $("#timeFormat").text());   
-});
-
-$('#timeFormatList').on('click', 'li', function () {
-    $("#timeFormat").html(this.id + " <span class=\"caret\"></span>");
-    hub.server.changeDelay($("#timeLength").val(), $("#timeFormat").text());
-});
 
 $('#pTimeFormatList').on('click', 'li', function () {
     $("#pTimeFormat").html(this.id + " <span class=\"caret\"></span>");
