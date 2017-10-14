@@ -136,8 +136,10 @@ namespace Market_Scanner{
 
         private void StartListener(){
             while (true){
+                double pChange = 10000000, vChange = 10000000;
+
                 //Add the newest instance of each coin into a list
-                List<Coin> coins = Helper.coinsHistory.Values.Select(x => x.Values.Last()).ToList();
+                List<Coin> coins = Helper.coinsHistory.Values.Select(x => x.Values.OrderBy(y => y.timeStamp).Last()).ToList();
                 coins = coins.OrderBy(coin => coin.marketName).ToList();
                 try{
                     //Empty the lists to stop infinite stacking
@@ -152,11 +154,14 @@ namespace Market_Scanner{
                                                      && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
                                                      && Convert.ToDouble(coin.volume) >= minVolume[Context.ConnectionId] //Check min volume
                                                      && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
-                                                     && Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId]) //Check price change over a period of time
-                                                    )){
-                        validCoins[Context.ConnectionId].Add(coin);
-                        priceChanges[Context.ConnectionId].Add(0);
-                        volumeChanges[Context.ConnectionId].Add(0);
+                                                     )){
+                        pChange = Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId]);
+                        if (pChange != 10000000){ //Check price change over a period of time
+                            validCoins[Context.ConnectionId].Add(coin);
+                            priceChanges[Context.ConnectionId].Add(pChange);
+                            pChange = 10000000; //reset to infeasable value
+                            volumeChanges[Context.ConnectionId].Add(0);
+                        }
                     }
                     Clients.Client(Context.ConnectionId).clearTables();
                     UpdateTable(validCoins[Context.ConnectionId], priceChanges[Context.ConnectionId], volumeChanges[Context.ConnectionId]);

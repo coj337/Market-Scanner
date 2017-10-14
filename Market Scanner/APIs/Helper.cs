@@ -37,21 +37,21 @@ namespace Market_Scanner.APIs{
             }
         }
 
-        public static bool CheckPriceChange(Coin coin, double price, int time) {
-            ConcurrentDictionary<string, Coin> currentHistory = new ConcurrentDictionary<string, Coin>(coinsHistory[coin.marketName]);
-            double lastPrice = Convert.ToDouble(currentHistory.Last().Value.last);
+        public static double CheckPriceChange(Coin coin, double price, int time) {
+            List<Coin> currentHistory = coinsHistory[coin.marketName].Values.ToList().OrderBy(c => c.timeStamp).ToList(); ;
+            double lastPrice = Convert.ToDouble(currentHistory.Last().last);
 
             //Minus the time difference from the date to get the requested date to check
-            DateTime oDate = Convert.ToDateTime(coin.timeStamp);
+            DateTime oDate = Convert.ToDateTime(currentHistory.Last().timeStamp);
             oDate = oDate.AddMilliseconds(Convert.ToDouble(time) * -1); //Convert this to /remove/ milliseconds
             string ctime = oDate.ToString(DateTimeFormatInfo.CurrentInfo.SortableDateTimePattern);
 
-            var latest = currentHistory.Values.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
+            var latest = currentHistory.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
             if (latest.Count() > 0){
                 if (Convert.ToDouble(latest.First().last) >= lastPrice * (price / 100 + 1)) //price / 100 + 1 == 1.price
-                    return true;
+                    return Convert.ToDouble(latest.First().last) - (lastPrice * (price / 100 + 1));
             }
-            return false;
+            return 10000000;
         }
 
         public static async Task StartCollectorAsync() {
