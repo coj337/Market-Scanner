@@ -1,10 +1,12 @@
 ﻿var hub = $.connection.socketsHub;
-hub.client.updateTable = addToTable;
+$.connection.hub.logging = true;
+
 hub.client.clearTables = reset;
+hub.client.updateTable = addToTable;
 hub.client.lastUpdate = resetLastUpdate;
 
 $.connection.hub.start().done(function () {
-    hub.server.startListeners();    
+    hub.server.startListeners();
 });
 
 function reset() {

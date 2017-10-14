@@ -67,7 +67,9 @@ namespace Market_Scanner{
         }
 
         public void StartListeners(){
-            StartListener();
+            Task.Run(() => {
+                StartListener();
+            });
         }
 
         public void ChangeMaxPrice(double price){
@@ -137,14 +139,13 @@ namespace Market_Scanner{
                 //Add the newest instance of each coin into a list
                 List<Coin> coins = Helper.coinsHistory.Values.Select(x => x.Values.Last()).ToList();
                 coins = coins.OrderBy(coin => coin.marketName).ToList();
-
-                //Empty the lists to stop infinite stacking
-                validCoins[Context.ConnectionId].Clear(); 
-                priceChanges[Context.ConnectionId].Clear();
-                volumeChanges[Context.ConnectionId].Clear();
-
-                //Find valid coins and update the table
                 try{
+                    //Empty the lists to stop infinite stacking
+                    validCoins[Context.ConnectionId].Clear(); 
+                    priceChanges[Context.ConnectionId].Clear();
+                    volumeChanges[Context.ConnectionId].Clear();
+
+                    //Find valid coins and update the table
                     foreach (Coin coin in coins.Where(coin =>
                                                         selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
                                                      && Convert.ToDouble(coin.last) >= minPrice[Context.ConnectionId] //Check min price
