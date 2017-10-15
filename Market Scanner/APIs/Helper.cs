@@ -48,10 +48,19 @@ namespace Market_Scanner.APIs{
 
             var latest = currentHistory.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
             if (latest.Count() > 0){
-                if (Convert.ToDouble(latest.First().last) >= lastPrice * (price / 100 + 1)) //price / 100 + 1 == 1.price
-                    return Convert.ToDouble(latest.First().last) - (lastPrice * (price / 100 + 1));
+                double diff = CalculateChange(Convert.ToDouble(latest.First().last), Convert.ToDouble(latest.Last().last));
+                if (diff >= price) //price / 100 + 1 == 1.price
+                    return diff;
             }
             return 10000000;
+        }
+
+        public static double CalculateChange(double previous, double current){
+            if (previous == 0)
+                throw new InvalidOperationException();
+
+            var change = current - previous;
+            return change / previous * 100;
         }
 
         public static async Task StartCollectorAsync() {

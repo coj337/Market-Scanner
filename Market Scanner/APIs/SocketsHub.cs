@@ -159,8 +159,9 @@ namespace Market_Scanner{
                         if (pChange != 10000000){ //Check price change over a period of time
                             validCoins[Context.ConnectionId].Add(coin);
                             priceChanges[Context.ConnectionId].Add(pChange);
-                            pChange = 10000000; //reset to infeasable value
                             volumeChanges[Context.ConnectionId].Add(0);
+                            pChange = 10000000; //reset to infeasable value
+                            vChange = 10000000; //reset to infeasable value
                         }
                     }
                     Clients.Client(Context.ConnectionId).clearTables();

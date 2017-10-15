@@ -13,7 +13,8 @@ function reset() {
 }
 
 function addToTable(pair, price, volume, priceChangePercent, volumeChangePercent) {
-    $('#Results').append("<tr><td>" + pair + "</td><td>" + price + "</td><td>" + volume + "</td><td>" + priceChangePercent + "</td><td>" + volumeChangePercent + "</td></tr>");
+    var pairLink = pair.split('-');
+    $('#Results').append("<tr><td><a href=\"https://www.coinigy.com/main/markets/BTRX/" + pairLink[1] + "/" + pairLink[0] + "\" target=\"_blank\">" + pair + "</a></td><td>" + price + "</td><td>" + volume + "</td><td>" + priceChangePercent + "</td><td>" + volumeChangePercent + "</td></tr>");
 }
 
 $('#pTimeFormatList').on('click', 'li', function () {
