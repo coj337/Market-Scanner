@@ -50,8 +50,17 @@ namespace Market_Scanner.APIs{
             var latest = currentHistory.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
             if (latest.Count() > 0){
                 double diff = CalculateChange(Convert.ToDouble(latest.First().last), Convert.ToDouble(latest.Last().last));
-                if (diff >= price) //price / 100 + 1 == 1.price
+                if (price < 0) { //If looking for negative prices, only negative differences should be returned
+                    if (diff < 0 && diff <= price)
+                        return diff;
+                }
+                else if(price > 0){
+                        if (diff > 0 && diff >= price)
+                            return diff;
+                }
+                else{
                     return diff;
+                }
             }
             return 10000000;
         }
@@ -67,8 +76,17 @@ namespace Market_Scanner.APIs{
             var latest = currentHistory.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
             if (latest.Count() > 0){
                 double diff = CalculateChange(Convert.ToDouble(latest.First().volume), Convert.ToDouble(latest.Last().volume));
-                if (diff >= volume)
+                if (volume < 0){ //If looking for negative volumes, only negative differences should be returned
+                    if (diff < 0 && diff <= volume)
+                        return diff;
+                }
+                else if (volume > 0){ //If looking for positive volumes, only negative differences should be returned
+                    if (diff > 0 && diff >= volume)
+                        return diff;
+                }
+                else{
                     return diff;
+                }
             }
             return 10000000;
         }
