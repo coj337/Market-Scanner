@@ -99,12 +99,12 @@ $('.spinner2 .btn:last-of-type').on('click', function () {
 });
 
 $('#fatFingerButton').on('click', function () {
-    $('#priceChange').val(5);
+    $('#priceChange').val(-5);
     $("#pTimeLength").val(10);
     $("#pTimeFormat").text("Minutes");
     hub.server.setPriceChange($('#priceChange').val(), $("#pTimeLength").val(), $("#pTimeFormat").text());
 
-    $('#volumeChange').val(10);
+    $('#volumeChange').val(-10);
     $("#vTimeLength").val(10);
     $("#vTimeFormat").text("Minutes");
     hub.server.setVolumeChange($('#volumeChange').val(), $("#vTimeLength").val(), $("#vTimeFormat").text());
