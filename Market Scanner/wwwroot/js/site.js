@@ -34,10 +34,25 @@ $('#pTimeFormatList').on("click", "li", function () {
 });
 
 $('.spinner2').on("change", function () {
-    hub.server.setVolumeChange($("#volumeChange").val(), $("#vTimeLength").val(), $("vTimeFormat").text());
+    hub.server.setVolumeChange($("#volumeChange").val(), $("#vTimeLength").val(), $("#vTimeFormat").text());
 });
 $('#vTimeFormatList').on("click", "li", function () {
     hub.server.setVolumeChange($("#volumeChange").val(), $("#vTimeLength").val(), $("#vTimeFormat").text());
+});
+
+/* Price/Volume exclusion filters */
+$('.spinner3').on("change", function () {
+    hub.server.setExcludePriceChange($("#expriceChange").val(), $("#expTimeLength").val(), $("#expTimeFormat").text());
+});
+$('#expTimeFormatList').on("click", "li", function () {
+    hub.server.setExcludePriceChange($("#expriceChange").val(), $("#expTimeLength").val(), $("#expTimeFormat").text());
+});
+
+$('.spinner4').on("change", function () {
+    hub.server.setExcludeVolumeChange($("#exvolumeChange").val(), $("#exvTimeLength").val(), $("#exvTimeFormat").text());
+});
+$('#exvTimeFormatList').on("click", "li", function () {
+    hub.server.setExcludeVolumeChange($("#exvolumeChange").val(), $("#exvTimeLength").val(), $("#exvTimeFormat").text());
 });
 
 /* Base currency filters */
@@ -68,6 +83,7 @@ setInterval(function () { //Increment last updated every second
     $("#lastUpdated").text(parseInt($("#lastUpdated").text()) + 1);
 }, 1000);
 
+//Include events
 $('.spinner1 .btn:first-of-type').on('click', function () {
     if ($('#priceChange').val() == "") {
         $('#priceChange').val(0);
@@ -98,6 +114,38 @@ $('.spinner2 .btn:last-of-type').on('click', function () {
     hub.server.setVolumeChange($("#maxVolume").val(), $("#vTimeFormat").text());
 });
 
+//Exclude events
+$('.spinner3 .btn:first-of-type').on('click', function () {
+    if ($('#expriceChange').val() == "") {
+        $('#expriceChange').val(0);
+    }
+    $('#expriceChange').val(parseInt($('#expriceChange').val(), 10) + 1);
+    hub.server.setExcludePriceChange($("#exmaxTime").val(), $("#expTimeFormat").text());
+});
+$('.spinner3 .btn:last-of-type').on('click', function () {
+    if ($('#expriceChange').val() == "") {
+        $('#expriceChange').val(0);
+    }
+    $('#expriceChange').val(parseInt($('#expriceChange').val(), 10) - 1);
+    hub.server.setExcludePriceChange($("#exmaxTime").val(), $("#expTimeFormat").text());
+});
+
+$('.spinner4 .btn:first-of-type').on('click', function () {
+    if ($('#exvolumeChange').val() == "") {
+        $('#exvolumeChange').val(0);
+    }
+    $('#exvolumeChange').val(parseInt($('#exvolumeChange').val(), 10) + 1);
+    hub.server.setExcludeVolumeChange($("#exmaxVolume").val(), $("#exvTimeFormat").text());
+});
+$('.spinner4 .btn:last-of-type').on('click', function () {
+    if ($('#exvolumeChange').val() == "") {
+        $('#exvolumeChange').val(0);
+    }
+    $('#exvolumeChange').val(parseInt($('#exvolumeChange').val(), 10) - 1);
+    hub.server.setExcludeVolumeChange($("#exmaxVolume").val(), $("#exvTimeFormat").text());
+});
+
+//Profile events
 $('#fatFingerButton').on('click', function () {
     $('#priceChange').val(-5);
     $("#pTimeLength").val(10);

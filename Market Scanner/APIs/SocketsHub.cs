@@ -24,11 +24,17 @@ namespace Market_Scanner{
         private static Dictionary<string, double> minVolume = new Dictionary<string, double>();
         private static Dictionary<string, double> maxVolume = new Dictionary<string, double>();
         
-        // Movement Filters
+        // Movement Growth Config
         private static Dictionary<string, double> priceChange = new Dictionary<string, double>();
         private static Dictionary<string, int> priceChangeTime = new Dictionary<string, int>();
         private static Dictionary<string, double> volumeChange = new Dictionary<string, double>();
         private static Dictionary<string, int> volumeChangeTime = new Dictionary<string, int>();
+
+        //Movement Exclusion Config
+        private static Dictionary<string, double> exPriceChange = new Dictionary<string, double>();
+        private static Dictionary<string, int> exPriceChangeTime = new Dictionary<string, int>();
+        private static Dictionary<string, double> exVolumeChange = new Dictionary<string, double>();
+        private static Dictionary<string, int> exVolumeChangeTime = new Dictionary<string, int>();
 
         public override Task OnConnected(){
             token[Context.ConnectionId] = new CancellationTokenSource();
@@ -41,6 +47,10 @@ namespace Market_Scanner{
             priceChangeTime[Context.ConnectionId] = 300000;
             volumeChange[Context.ConnectionId] = 0;
             volumeChangeTime[Context.ConnectionId] = 300000;
+            exPriceChange[Context.ConnectionId] = 0;
+            exPriceChangeTime[Context.ConnectionId] = 300000;
+            exVolumeChange[Context.ConnectionId] = 0;
+            exVolumeChangeTime[Context.ConnectionId] = 300000;
             validCoins[Context.ConnectionId] = new List<Coin>();
             priceChanges[Context.ConnectionId] = new List<double>();
             volumeChanges[Context.ConnectionId] = new List<double>();
@@ -59,6 +69,10 @@ namespace Market_Scanner{
             priceChangeTime.Remove(Context.ConnectionId);
             volumeChange.Remove(Context.ConnectionId);
             volumeChangeTime.Remove(Context.ConnectionId);
+            exPriceChange.Remove(Context.ConnectionId);
+            exPriceChangeTime.Remove(Context.ConnectionId);
+            exVolumeChange.Remove(Context.ConnectionId);
+            exVolumeChangeTime.Remove(Context.ConnectionId);
             validCoins.Remove(Context.ConnectionId);
             priceChanges.Remove(Context.ConnectionId);
             volumeChanges.Remove(Context.ConnectionId);
@@ -104,6 +118,22 @@ namespace Market_Scanner{
             priceChange[Context.ConnectionId] = changePercent;
         }
 
+        public void SetExcludePriceChange(double changePercent, int newTime, string timeFormat){
+            switch (timeFormat.Trim().ToLower()){
+                case "seconds":
+                    newTime *= 1000;
+                    break;
+                case "minutes":
+                    newTime *= 60000;
+                    break;
+                case "hours":
+                    newTime *= 3600000;
+                    break;
+            }
+            exPriceChangeTime[Context.ConnectionId] = newTime;
+            exPriceChange[Context.ConnectionId] = changePercent;
+        }
+
         public void SetVolumeChange(double changePercent, int newTime, string timeFormat){
             switch (timeFormat.Trim().ToLower()){
                 case "seconds":
@@ -118,6 +148,22 @@ namespace Market_Scanner{
             }
             volumeChangeTime[Context.ConnectionId] = newTime;
             volumeChange[Context.ConnectionId] = changePercent;
+        }
+
+        public void SetExcludeVolumeChange(double changePercent, int newTime, string timeFormat){
+            switch (timeFormat.Trim().ToLower()){
+                case "seconds":
+                    newTime *= 1000;
+                    break;
+                case "minutes":
+                    newTime *= 60000;
+                    break;
+                case "hours":
+                    newTime *= 3600000;
+                    break;
+            }
+            exVolumeChangeTime[Context.ConnectionId] = newTime;
+            exVolumeChange[Context.ConnectionId] = changePercent;
         }
 
         public void TogglePair(string pair){
@@ -156,6 +202,8 @@ namespace Market_Scanner{
                                                      && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
                                                      && Convert.ToDouble(coin.volume) >= minVolume[Context.ConnectionId] //Check min volume
                                                      && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
+                                                     && Helper.CheckPriceExclude(coin, exPriceChange[Context.ConnectionId], exPriceChangeTime[Context.ConnectionId])
+                                                     && Helper.CheckVolumeExclude(coin, exVolumeChange[Context.ConnectionId], exVolumeChangeTime[Context.ConnectionId])
                                                      )){
                                                          pChange = Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId]); //Check price growth
                                                          vChange = Helper.CheckVolumeChange(coin, volumeChange[Context.ConnectionId], volumeChangeTime[Context.ConnectionId]); //Check volume growth

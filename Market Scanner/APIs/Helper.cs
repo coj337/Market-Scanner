@@ -65,6 +65,32 @@ namespace Market_Scanner.APIs{
             return 10000000;
         }
 
+        public static bool CheckPriceExclude(Coin coin, double price, int time){
+            List<Coin> currentHistory = coinsHistory[coin.marketName].Values.ToList().OrderBy(c => c.timeStamp).ToList(); ;
+            var test = coinsHistory;
+            //Minus the time difference from the date to get the requested date to check
+            DateTime oDate = Convert.ToDateTime(currentHistory.Last().timeStamp);
+            oDate = oDate.AddMilliseconds(Convert.ToDouble(time) * -1); //Convert this to /remove/ milliseconds
+            string ctime = oDate.ToString(DateTimeFormatInfo.CurrentInfo.SortableDateTimePattern);
+
+            var latest = currentHistory.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
+            if (latest.Count() > 0){
+                double diff = CalculateChange(Convert.ToDouble(latest.First().last), Convert.ToDouble(latest.Last().last));
+                if (price < 0){ //If looking for negative prices, only negative differences should be returned
+                    if (diff < 0 && diff <= price)
+                        return false;
+                }
+                else if (price > 0){ //If looking for positive prices, only positive differences should be returned
+                    if (diff > 0 && diff >= price)
+                        return false;
+                }
+                else{
+                    return true;
+                }
+            }
+            return true;
+        }
+
         public static double CheckVolumeChange(Coin coin, double volume, int time){
             List<Coin> currentHistory = coinsHistory[coin.marketName].Values.ToList().OrderBy(c => c.timeStamp).ToList();
 
@@ -89,6 +115,32 @@ namespace Market_Scanner.APIs{
                 }
             }
             return 10000000;
+        }
+
+        public static bool CheckVolumeExclude(Coin coin, double volume, int time){
+            List<Coin> currentHistory = coinsHistory[coin.marketName].Values.ToList().OrderBy(c => c.timeStamp).ToList();
+
+            //Minus the time difference from the date to get the requested date to check
+            DateTime oDate = Convert.ToDateTime(currentHistory.Last().timeStamp);
+            oDate = oDate.AddMilliseconds(Convert.ToDouble(time) * -1); //Convert this to /remove/ milliseconds
+            string ctime = oDate.ToString(DateTimeFormatInfo.CurrentInfo.SortableDateTimePattern);
+
+            var latest = currentHistory.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
+            if (latest.Count() > 0){
+                double diff = CalculateChange(Convert.ToDouble(latest.First().volume), Convert.ToDouble(latest.Last().volume));
+                if (volume < 0){ //If looking for negative volumes, only negative differences should be returned
+                    if (diff < 0 && diff <= volume)
+                        return false;
+                }
+                else if (volume > 0){ //If looking for positive volumes, only positive differences should be returned
+                    if (diff > 0 && diff >= volume)
+                        return false;
+                }
+                else{
+                    return true;
+                }
+            }
+            return true;
         }
 
         public static double CalculateChange(double previous, double current){
