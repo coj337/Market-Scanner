@@ -14,6 +14,7 @@ namespace Market_Scanner{
 
         // Scanner Config
         private static Dictionary<string, List<Coin>> validCoins = new Dictionary<string, List<Coin>>(); //List of coins that meet the users conditions
+        private static Dictionary<string, List<Coin>> lastValidCoins = new Dictionary<string, List<Coin>>();
         private static Dictionary<string, List<double>> priceChanges = new Dictionary<string, List<double>>();
         private static Dictionary<string, List<double>> volumeChanges = new Dictionary<string, List<double>>();
 
@@ -52,6 +53,7 @@ namespace Market_Scanner{
             exVolumeChange[Context.ConnectionId] = 0;
             exVolumeChangeTime[Context.ConnectionId] = 300000;
             validCoins[Context.ConnectionId] = new List<Coin>();
+            lastValidCoins[Context.ConnectionId] = new List<Coin>();
             priceChanges[Context.ConnectionId] = new List<double>();
             volumeChanges[Context.ConnectionId] = new List<double>();
 
@@ -74,6 +76,7 @@ namespace Market_Scanner{
             exVolumeChange.Remove(Context.ConnectionId);
             exVolumeChangeTime.Remove(Context.ConnectionId);
             validCoins.Remove(Context.ConnectionId);
+            lastValidCoins.Remove(Context.ConnectionId);
             priceChanges.Remove(Context.ConnectionId);
             volumeChanges.Remove(Context.ConnectionId);
 
@@ -189,6 +192,7 @@ namespace Market_Scanner{
                 coins = coins.OrderBy(coin => coin.marketName).ToList();
                 try{
                     //Empty the lists to stop infinite stacking
+                    lastValidCoins[Context.ConnectionId] = new List<Coin>(validCoins[Context.ConnectionId]);
                     validCoins[Context.ConnectionId].Clear(); 
                     priceChanges[Context.ConnectionId].Clear();
                     volumeChanges[Context.ConnectionId].Clear();
@@ -217,6 +221,15 @@ namespace Market_Scanner{
                     Clients.Client(Context.ConnectionId).clearTables();
                     UpdateTable(validCoins[Context.ConnectionId], priceChanges[Context.ConnectionId], volumeChanges[Context.ConnectionId]);
                     Clients.Client(Context.ConnectionId).updateTitle("(" + validCoins[Context.ConnectionId].Count() + ") Cryptocurrency Market Scanner v0.1");
+                    foreach (Coin coin in validCoins[Context.ConnectionId]) { 
+                        if(lastValidCoins[Context.ConnectionId].Any(x => x.marketName == coin.marketName)){ //If the list of coins changed, play the sound
+                            continue;
+                        }
+                        else{
+                            Clients.Client(Context.ConnectionId).tableChanged();
+                            break;
+                        }
+                    }
                     Clients.Client(Context.ConnectionId).lastUpdate();
                 }catch (KeyNotFoundException) { }
             }

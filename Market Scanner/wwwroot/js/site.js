@@ -4,6 +4,7 @@ hub.client.clearTables = reset;
 hub.client.updateTable = addToTable;
 hub.client.lastUpdate = resetLastUpdate;
 hub.client.updateTitle = updateTitle;
+hub.client.tableChanged = playAudio;
 
 $.connection.hub.start().done(function () {
     hub.server.startListeners();
@@ -161,7 +162,19 @@ $('#fatFingerButton').on('click', function () {
     $("#profileButton").html("Fat Finger <span class=\"caret\"></span>");
 });
 
-//Title update function 
+//UX Functions
 function updateTitle(newTitle) {
     document.title = newTitle;
+}
+
+function toggleAudio() {
+    $('#volumeIcon').toggleClass("glyphicon-volume-up");
+    $('#volumeIcon').toggleClass("glyphicon-volume-off");
+}
+
+function playAudio() {
+    if ($('#volumeIcon').hasClass("glyphicon-volume-up")) {
+        var audio = new Audio('sound/arpeggio.mp3');
+        audio.play();
+    }
 }
