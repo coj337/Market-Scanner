@@ -105,6 +105,53 @@
                 </div>
             </div>
         </div>
+
+        <!-- Exclusions -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Exclude</h3>
+            </div>
+            <div class="panel-body">
+                Price Change<br />
+                <div class="input-group spinner3">
+                    <input type="text" id="expriceChange" placeholder="Min %" class="form-control" />
+                    <div class="input-group-btn-vertical">
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+                    </div>
+
+                    <input id="expTimeLength" type="text" value="5" class="form-control" style="margin-left: 10%;">
+                    <div class="input-group-btn">
+                        <button id="expTimeFormat" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Minutes <span class="caret"></span></button>
+                        <ul id="expTimeFormatList" class="dropdown-menu dropdown-menu-right">
+                            <li id="Seconds"><a href="#">Seconds</a></li>
+                            <li id="Minutes"><a href="#">Minutes</a></li>
+                            <li id="Hours"><a href="#">Hours</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <br />
+                Volume Change<br />
+                <div class="input-group spinner4">
+                    <input type="text" id="exvolumeChange" placeholder="Min %" class="form-control" />
+                    <div class="input-group-btn-vertical">
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+                        <button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+                    </div>
+
+                    <input id="exvTimeLength" type="text" value="5" class="form-control" style="margin-left: 10%;">
+                    <div class="input-group-btn">
+                        <button id="exvTimeFormat" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Minutes <span class="caret"></span></button>
+                        <ul id="exvTimeFormatList" class="dropdown-menu dropdown-menu-right">
+                            <li id="Seconds"><a href="#">Seconds</a></li>
+                            <li id="Minutes"><a href="#">Minutes</a></li>
+                            <li id="Hours"><a href="#">Hours</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Tables -->
