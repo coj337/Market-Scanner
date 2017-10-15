@@ -54,8 +54,8 @@ namespace Market_Scanner.APIs{
                     if (diff < 0 && diff <= price)
                         return diff;
                 }
-                else if(price > 0){
-                        if (diff > 0 && diff >= price)
+                else if(price > 0){ //If looking for positive prices, only positive differences should be returned
+                    if (diff > 0 && diff >= price)
                             return diff;
                 }
                 else{
@@ -80,7 +80,7 @@ namespace Market_Scanner.APIs{
                     if (diff < 0 && diff <= volume)
                         return diff;
                 }
-                else if (volume > 0){ //If looking for positive volumes, only negative differences should be returned
+                else if (volume > 0){ //If looking for positive volumes, only positive differences should be returned
                     if (diff > 0 && diff >= volume)
                         return diff;
                 }
