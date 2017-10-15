@@ -216,6 +216,7 @@ namespace Market_Scanner{
                                                      }
                     Clients.Client(Context.ConnectionId).clearTables();
                     UpdateTable(validCoins[Context.ConnectionId], priceChanges[Context.ConnectionId], volumeChanges[Context.ConnectionId]);
+                    Clients.Client(Context.ConnectionId).updateTitle("(" + validCoins[Context.ConnectionId].Count() + ") Cryptocurrency Market Scanner v0.1");
                     Clients.Client(Context.ConnectionId).lastUpdate();
                 }catch (KeyNotFoundException) { }
             }

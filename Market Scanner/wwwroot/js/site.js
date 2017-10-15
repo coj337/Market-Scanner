@@ -3,6 +3,7 @@
 hub.client.clearTables = reset;
 hub.client.updateTable = addToTable;
 hub.client.lastUpdate = resetLastUpdate;
+hub.client.updateTitle = updateTitle;
 
 $.connection.hub.start().done(function () {
     hub.server.startListeners();
@@ -159,3 +160,8 @@ $('#fatFingerButton').on('click', function () {
 
     $("#profileButton").html("Fat Finger <span class=\"caret\"></span>");
 });
+
+//Title update function 
+function updateTitle(newTitle) {
+    document.title = newTitle;
+}
