@@ -38,9 +38,9 @@ namespace Market_Scanner{
             minVolume[Context.ConnectionId] = 0;
             maxVolume[Context.ConnectionId] = Double.MaxValue;
             priceChange[Context.ConnectionId] = 0;
-            priceChangeTime[Context.ConnectionId] = 0;
+            priceChangeTime[Context.ConnectionId] = 300000;
             volumeChange[Context.ConnectionId] = 0;
-            volumeChangeTime[Context.ConnectionId] = 0;
+            volumeChangeTime[Context.ConnectionId] = 300000;
             validCoins[Context.ConnectionId] = new List<Coin>();
             priceChanges[Context.ConnectionId] = new List<double>();
             volumeChanges[Context.ConnectionId] = new List<double>();
@@ -136,7 +136,7 @@ namespace Market_Scanner{
 
         private void StartListener(){
             while (true){
-                double pChange = 10000000, vChange = 10000000;
+                double pChange, vChange;
 
                 //Add the newest instance of each coin into a list
                 List<Coin> coins = Helper.coinsHistory.Values.Select(x => x.Values.OrderBy(y => y.timeStamp).Last()).ToList();
@@ -146,24 +146,26 @@ namespace Market_Scanner{
                     validCoins[Context.ConnectionId].Clear(); 
                     priceChanges[Context.ConnectionId].Clear();
                     volumeChanges[Context.ConnectionId].Clear();
+                    pChange = 10000000; //Reset to default value
+                    vChange = 10000000; //Reset to default value
 
                     //Find valid coins and update the table
-                    foreach (Coin coin in coins.Where(coin =>
+                    foreach(Coin coin in coins.Where(coin =>
                                                         selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
                                                      && Convert.ToDouble(coin.last) >= minPrice[Context.ConnectionId] //Check min price
                                                      && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
                                                      && Convert.ToDouble(coin.volume) >= minVolume[Context.ConnectionId] //Check min volume
                                                      && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
                                                      )){
-                        pChange = Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId]);
-                        if (pChange != 10000000){ //Check price change over a period of time
-                            validCoins[Context.ConnectionId].Add(coin);
-                            priceChanges[Context.ConnectionId].Add(pChange);
-                            volumeChanges[Context.ConnectionId].Add(0);
-                            pChange = 10000000; //reset to infeasable value
-                            vChange = 10000000; //reset to infeasable value
-                        }
-                    }
+                                                         pChange = Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId]); //Check price growth
+                                                         vChange = Helper.CheckVolumeChange(coin, volumeChange[Context.ConnectionId], volumeChangeTime[Context.ConnectionId]); //Check volume growth
+
+                                                         if (pChange != 10000000 && vChange != 10000000){ //Default value
+                                                             validCoins[Context.ConnectionId].Add(coin);
+                                                             priceChanges[Context.ConnectionId].Add(pChange);
+                                                             volumeChanges[Context.ConnectionId].Add(vChange);
+                                                         }
+                                                     }
                     Clients.Client(Context.ConnectionId).clearTables();
                     UpdateTable(validCoins[Context.ConnectionId], priceChanges[Context.ConnectionId], volumeChanges[Context.ConnectionId]);
                     Clients.Client(Context.ConnectionId).lastUpdate();

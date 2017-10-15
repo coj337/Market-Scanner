@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Globalization;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Collections.Async;
 
 namespace Market_Scanner.APIs{
     public class Helper {
@@ -39,8 +41,7 @@ namespace Market_Scanner.APIs{
 
         public static double CheckPriceChange(Coin coin, double price, int time) {
             List<Coin> currentHistory = coinsHistory[coin.marketName].Values.ToList().OrderBy(c => c.timeStamp).ToList(); ;
-            double lastPrice = Convert.ToDouble(currentHistory.Last().last);
-
+            var test = coinsHistory;
             //Minus the time difference from the date to get the requested date to check
             DateTime oDate = Convert.ToDateTime(currentHistory.Last().timeStamp);
             oDate = oDate.AddMilliseconds(Convert.ToDouble(time) * -1); //Convert this to /remove/ milliseconds
@@ -55,34 +56,55 @@ namespace Market_Scanner.APIs{
             return 10000000;
         }
 
-        public static double CalculateChange(double previous, double current){
-            if (previous == 0)
-                throw new InvalidOperationException();
+        public static double CheckVolumeChange(Coin coin, double volume, int time){
+            List<Coin> currentHistory = coinsHistory[coin.marketName].Values.ToList().OrderBy(c => c.timeStamp).ToList();
 
-            var change = current - previous;
-            return change / previous * 100;
+            //Minus the time difference from the date to get the requested date to check
+            DateTime oDate = Convert.ToDateTime(currentHistory.Last().timeStamp);
+            oDate = oDate.AddMilliseconds(Convert.ToDouble(time) * -1); //Convert this to /remove/ milliseconds
+            string ctime = oDate.ToString(DateTimeFormatInfo.CurrentInfo.SortableDateTimePattern);
+
+            var latest = currentHistory.Where(tCoin => ctime.CompareTo(tCoin.timeStamp) <= 0);
+            if (latest.Count() > 0){
+                double diff = CalculateChange(Convert.ToDouble(latest.First().volume), Convert.ToDouble(latest.Last().volume));
+                if (diff >= volume)
+                    return diff;
+            }
+            return 10000000;
+        }
+
+        public static double CalculateChange(double previous, double current){
+            try{
+                if (previous == 0)
+                    throw new InvalidOperationException();
+
+                var change = current - previous;
+                return change / previous * 100;
+            }
+            catch (InvalidOperationException) { return 10000000; }
         }
 
         public static async Task StartCollectorAsync() {
             string url = "";
 
             //Get historical data for list
-            foreach (KeyValuePair<string, ConcurrentDictionary<string, Coin>> coinNames in coinsHistory) {
+            await coinsHistory.ParallelForEachAsync(async coinNames => {
                 url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=" + coinNames.Key + "&tickInterval=oneMin&_=1499127220008";
 
-                using (HttpClient client = new HttpClient()) {
-                    using (HttpResponseMessage res = await client.GetAsync(url)) {
-                        using (HttpContent content = res.Content) {
+                using (HttpClient client = new HttpClient()){
+                    using (HttpResponseMessage res = await client.GetAsync(url)){
+                        using (HttpContent content = res.Content){
                             string data = await content.ReadAsStringAsync();
                             if (data != null){
-                                foreach (Tick tick in JsonConvert.DeserializeObject<JsonResponse2>(data).result) {
+                                Parallel.ForEach(JsonConvert.DeserializeObject<JsonResponse2>(data).result, tick =>
+                                {
                                     coinsHistory[coinNames.Key][tick.T] = tick.ToCoin(coinNames.Key);
-                                }
+                                });
                             }
                         }
                     }
                 }
-            }
+            }, maxDegreeOfParalellism: 200);
 
             //Loop 5eva refreshing list
             url = "https://bittrex.com/api/v1.1/public/getmarketsummaries";
@@ -91,15 +113,14 @@ namespace Market_Scanner.APIs{
                     using (HttpResponseMessage res = await client.GetAsync(url)){
                         using (HttpContent content = res.Content){
                             string data = await content.ReadAsStringAsync();
-                            foreach (Coin coin in JsonConvert.DeserializeObject<JsonResponse>(data).result){
+                            Parallel.ForEach(JsonConvert.DeserializeObject<JsonResponse>(data).result, coin =>{
                                 try{
                                     if (!coinsHistory.ContainsKey(coin.timeStamp)) //Don't overwrite
                                         coinsHistory[coin.marketName][coin.timeStamp] = coin;
                                 }
-                                catch (ArgumentException) {
-
+                                catch (ArgumentException e){
                                 }
-                            }
+                            });
                         }
                     }
                 }
