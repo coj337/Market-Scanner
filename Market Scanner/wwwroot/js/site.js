@@ -68,34 +68,46 @@ setInterval(function () { //Increment last updated every second
     $("#lastUpdated").text(parseInt($("#lastUpdated").text()) + 1);
 }, 1000);
 
-(function ($) {
-    $('.spinner1 .btn:first-of-type').on('click', function () {
-        if ($('#priceChange').val() == "") {
-            $('#priceChange').val(0);
-        }
-        $('#priceChange').val(parseInt($('#priceChange').val(), 10) + 1);
-        hub.server.setPriceChange($("#maxTime").val(), $("#pTimeFormat").text());
-    });
-    $('.spinner1 .btn:last-of-type').on('click', function () {
-        if ($('#priceChange').val() == "") {
-            $('#priceChange').val(0);
-        }
-        $('#priceChange').val(parseInt($('#priceChange').val(), 10) - 1);
-        hub.server.setPriceChange($("#maxTime").val(), $("#pTimeFormat").text());
-    });
+$('.spinner1 .btn:first-of-type').on('click', function () {
+    if ($('#priceChange').val() == "") {
+        $('#priceChange').val(0);
+    }
+    $('#priceChange').val(parseInt($('#priceChange').val(), 10) + 1);
+    hub.server.setPriceChange($("#maxTime").val(), $("#pTimeFormat").text());
+});
+$('.spinner1 .btn:last-of-type').on('click', function () {
+    if ($('#priceChange').val() == "") {
+        $('#priceChange').val(0);
+    }
+    $('#priceChange').val(parseInt($('#priceChange').val(), 10) - 1);
+    hub.server.setPriceChange($("#maxTime").val(), $("#pTimeFormat").text());
+});
 
-    $('.spinner2 .btn:first-of-type').on('click', function () {
-        if ($('#volumeChange').val() == "") {
-            $('#volumeChange').val(0);
-        }
-        $('#volumeChange').val(parseInt($('#volumeChange').val(), 10) + 1);
-        hub.server.setVolumeChange($("#maxVolume").val(), $("#vTimeFormat").text());
-    });
-    $('.spinner2 .btn:last-of-type').on('click', function () {
-        if ($('#volumeChange').val() == "") {
-            $('#volumeChange').val(0);
-        }
-        $('#volumeChange').val(parseInt($('#volumeChange').val(), 10) - 1);
-        hub.server.setVolumeChange($("#maxVolume").val(), $("#vTimeFormat").text());
-    });
-})(jQuery);
+$('.spinner2 .btn:first-of-type').on('click', function () {
+    if ($('#volumeChange').val() == "") {
+        $('#volumeChange').val(0);
+    }
+    $('#volumeChange').val(parseInt($('#volumeChange').val(), 10) + 1);
+    hub.server.setVolumeChange($("#maxVolume").val(), $("#vTimeFormat").text());
+});
+$('.spinner2 .btn:last-of-type').on('click', function () {
+    if ($('#volumeChange').val() == "") {
+        $('#volumeChange').val(0);
+    }
+    $('#volumeChange').val(parseInt($('#volumeChange').val(), 10) - 1);
+    hub.server.setVolumeChange($("#maxVolume").val(), $("#vTimeFormat").text());
+});
+
+$('#fatFingerButton').on('click', function () {
+    $('#priceChange').val(5);
+    $("#pTimeLength").val(10);
+    $("#pTimeFormat").text("Minutes");
+    hub.server.setPriceChange($('#priceChange').val(), $("#pTimeLength").val(), $("#pTimeFormat").text());
+
+    $('#volumeChange').val(10);
+    $("#vTimeLength").val(10);
+    $("#vTimeFormat").text("Minutes");
+    hub.server.setVolumeChange($('#volumeChange').val(), $("#vTimeLength").val(), $("#vTimeFormat").text());
+
+    $("#profileButton").html("Fat Finger <span class=\"caret\"></span>");
+});
