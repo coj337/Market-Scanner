@@ -194,6 +194,7 @@ namespace Market_Scanner.APIs{
                         }
                     }
                 }
+                await Task.Delay(1000); //Wait one second before requesting more data
             }
         }
     }

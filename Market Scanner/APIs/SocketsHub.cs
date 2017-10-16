@@ -196,11 +196,10 @@ namespace Market_Scanner{
                     validCoins[Context.ConnectionId].Clear(); 
                     priceChanges[Context.ConnectionId].Clear();
                     volumeChanges[Context.ConnectionId].Clear();
-                    pChange = 10000000; //Reset to default value
-                    vChange = 10000000; //Reset to default value
+
 
                     //Find valid coins and update the table
-                    foreach(Coin coin in coins.Where(coin =>
+                    Parallel.ForEach(coins.Where(coin =>
                                                         selectedPairs[Context.ConnectionId].Contains(coin.marketName.Substring(0, 3)) //Check selected base currencies
                                                      && Convert.ToDouble(coin.last) >= minPrice[Context.ConnectionId] //Check min price
                                                      && Convert.ToDouble(coin.last) <= maxPrice[Context.ConnectionId] //Check max price
@@ -208,7 +207,7 @@ namespace Market_Scanner{
                                                      && Convert.ToDouble(coin.volume) <= maxVolume[Context.ConnectionId] //Check max volume
                                                      && Helper.CheckPriceExclude(coin, exPriceChange[Context.ConnectionId], exPriceChangeTime[Context.ConnectionId])
                                                      && Helper.CheckVolumeExclude(coin, exVolumeChange[Context.ConnectionId], exVolumeChangeTime[Context.ConnectionId])
-                                                     )){
+                                                     ), coin => {
                                                          pChange = Helper.CheckPriceChange(coin, priceChange[Context.ConnectionId], priceChangeTime[Context.ConnectionId]); //Check price growth
                                                          vChange = Helper.CheckVolumeChange(coin, volumeChange[Context.ConnectionId], volumeChangeTime[Context.ConnectionId]); //Check volume growth
 
@@ -217,7 +216,7 @@ namespace Market_Scanner{
                                                              priceChanges[Context.ConnectionId].Add(pChange);
                                                              volumeChanges[Context.ConnectionId].Add(vChange);
                                                          }
-                                                     }
+                                                     });
                     Clients.Client(Context.ConnectionId).clearTables();
                     UpdateTable(validCoins[Context.ConnectionId], priceChanges[Context.ConnectionId], volumeChanges[Context.ConnectionId]);
                     Clients.Client(Context.ConnectionId).updateTitle("(" + validCoins[Context.ConnectionId].Count() + ") Cryptocurrency Market Scanner v0.1");
@@ -231,7 +230,7 @@ namespace Market_Scanner{
                         }
                     }
                     Clients.Client(Context.ConnectionId).lastUpdate();
-                }catch (KeyNotFoundException) { }
+                }catch (KeyNotFoundException) {}
             }
         }
     }
