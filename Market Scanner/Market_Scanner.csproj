@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
+    <AssetTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
